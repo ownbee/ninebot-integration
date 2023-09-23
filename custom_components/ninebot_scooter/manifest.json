@@ -18,7 +18,7 @@
         "ninebot_ble"
     ],
     "requirements": [
-        "ninebot-ble==0.0.3"
+        "ninebot-ble==0.0.4"
     ],
     "version": "0.0.1"
 }
