@@ -1,5 +1,4 @@
 """Constants for the integration."""
 
-DOMAIN = "nbscooter"
+DOMAIN = "ninebot_scooter"
 UPDATE_INTERVAL = 10
-

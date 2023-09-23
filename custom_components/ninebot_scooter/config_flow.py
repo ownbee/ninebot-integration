@@ -22,7 +22,7 @@ from homeassistant.data_entry_flow import FlowResult
 from .const import DOMAIN
 
 
-class NinebotScooterConfigFlow(ConfigFlow, domain=DOMAIN):
+class NinebotConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for ninebot."""
 
     VERSION = 1
