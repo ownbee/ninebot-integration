@@ -37,7 +37,7 @@ def sensor_update_to_bluetooth_data_update(
         entity_descriptions={
             device_key_to_bluetooth_entity_key(device_key): SensorEntityDescription(
                 key=str(device_key),
-                device_class=SensorDeviceClass(desc.device_class),
+                device_class=SensorDeviceClass(desc.device_class) if desc.device_class is not None else None,
                 native_unit_of_measurement=desc.native_unit_of_measurement,
             )
             for device_key, desc in sensor_update.entity_descriptions.items()
