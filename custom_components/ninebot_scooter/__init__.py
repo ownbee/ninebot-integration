@@ -19,18 +19,11 @@ from homeassistant.const import Platform
 from homeassistant.core import CoreState, HomeAssistant
 
 
-from .const import DOMAIN, UPDATE_INTERVAL
+from .const import DOMAIN
 
 PLATFORMS: list[Platform] = [Platform.SENSOR]  # type: ignore
 
 _LOGGER = logging.getLogger(__name__)
-
-
-def _is_poll_needed(last_poll: float | None) -> bool:
-    """Is it time for another data poll?"""
-    if last_poll is None:
-        return True
-    return last_poll > UPDATE_INTERVAL
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -39,19 +32,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     assert address is not None
     data = NinebotBleSensor()
 
-    def _needs_poll(
-        service_info: BluetoothServiceInfoBleak, last_poll: float | None
-    ) -> bool:
-        # Only poll if hass is running, we need to poll,
-        # and we actually have a way to connect to the device
-        return (
-            hass.state == CoreState.running
-            and _is_poll_needed(last_poll)
-            and bool(
-                async_ble_device_from_address(
-                    hass, service_info.device.address, connectable=True
-                )
-            )
+    def _needs_poll(service_info: BluetoothServiceInfoBleak, last_poll: float | None) -> bool:
+        # Only poll if hass is running and we actually have a way to connect to the device
+        return hass.state == CoreState.running and bool(
+            async_ble_device_from_address(hass, service_info.device.address, connectable=True)
         )
 
     async def _async_poll(service_info: BluetoothServiceInfoBleak):
@@ -59,21 +43,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         # in case its coming from a passive scanner
         if service_info.connectable:
             connectable_device = service_info.device
-        elif device := async_ble_device_from_address(
-            hass, service_info.device.address, True
-        ):
+        elif device := async_ble_device_from_address(hass, service_info.device.address, True):
             connectable_device = device
         else:
             # We have no bluetooth controller that is in range of
             # the device to poll it
-            raise RuntimeError(
-                f"No connectable device found for {service_info.device.address}"
-            )
+            raise RuntimeError(f"No connectable device found for {service_info.device.address}")
         return await data.async_poll(connectable_device)
 
-    coordinator = hass.data.setdefault(DOMAIN, {})[
-        entry.entry_id
-    ] = ActiveBluetoothProcessorCoordinator(
+    coordinator = hass.data.setdefault(DOMAIN, {})[entry.entry_id] = ActiveBluetoothProcessorCoordinator(
         hass,
         _LOGGER,
         address=address,
@@ -84,9 +62,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         connectable=True,
     )
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-    entry.async_on_unload(
-        coordinator.async_start()
-    )  # only start after all platforms have had a chance to subscribe
+    entry.async_on_unload(coordinator.async_start())  # only start after all platforms have had a chance to subscribe
     return True
 
 
