@@ -4,10 +4,10 @@
 
 
 this fork changes line 69 from
-"PassiveBluetoothProcessorEntity[PassiveBluetoothDataProcessor[str | int | None]]," to
-"PassiveBluetoothProcessorEntity[PassiveBluetoothDataProcessor[str | int | None,1]]," 
+`PassiveBluetoothProcessorEntity[PassiveBluetoothDataProcessor[str | int | None]],` to
+`PassiveBluetoothProcessorEntity[PassiveBluetoothDataProcessor[str | int | None,1]],` 
 
-This fixes issue and scooter pulls data  but fails to continuously pull info from scooter with error Failure while polling. TimeoutError: Did not get a response on Packet[PC -> ES_BLE, cmd=INIT, idx=00]. 
+This fixes issue and scooter pulls data  but fails to continuously pull info from scooter with `error Failure while polling. TimeoutError: Did not get a response on Packet[PC -> ES_BLE, cmd=INIT, idx=00]`
 
 It connects and poll data from a Ninebot Scooter using BLE.
 
