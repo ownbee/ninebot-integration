@@ -49,7 +49,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             # We have no bluetooth controller that is in range of
             # the device to poll it
             raise RuntimeError(f"No connectable device found for {service_info.device.address}")
-        return await data.async_poll(connectable_device)
+        try:
+            return await data.async_poll(connectable_device)
+        finally:
+            # Release the selected adapter after every attempt so the next
+            # discovery can use another available Bluetooth adapter or proxy.
+            await data.disconnect()
 
     coordinator = hass.data.setdefault(DOMAIN, {})[entry.entry_id] = ActiveBluetoothProcessorCoordinator(
         hass,
