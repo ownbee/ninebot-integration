@@ -15,9 +15,8 @@ from homeassistant.components.bluetooth import (
     BluetoothServiceInfoBleak,
     async_discovered_service_info,
 )
-from homeassistant.config_entries import ConfigFlow
+from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_ADDRESS
-from homeassistant.data_entry_flow import FlowResult
 
 from .const import DOMAIN
 
@@ -33,7 +32,7 @@ class NinebotConfigFlow(ConfigFlow, domain=DOMAIN):
         self._discovered_device: NinebotBleSensor | None = None
         self._discovered_devices: dict[str, str] = {}
 
-    async def async_step_bluetooth(self, discovery_info: BluetoothServiceInfoBleak) -> FlowResult:
+    async def async_step_bluetooth(self, discovery_info: BluetoothServiceInfoBleak) -> ConfigFlowResult:
         """Handle the bluetooth discovery step."""
         await self.async_set_unique_id(discovery_info.address)
         self._abort_if_unique_id_configured()
@@ -44,7 +43,7 @@ class NinebotConfigFlow(ConfigFlow, domain=DOMAIN):
         self._discovered_device = device
         return await self.async_step_bluetooth_confirm()
 
-    async def async_step_bluetooth_confirm(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+    async def async_step_bluetooth_confirm(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Confirm discovery."""
         assert self._discovered_device is not None
         device = self._discovered_device
@@ -59,7 +58,7 @@ class NinebotConfigFlow(ConfigFlow, domain=DOMAIN):
         self.context["title_placeholders"] = placeholders
         return self.async_show_form(step_id="bluetooth_confirm", description_placeholders=placeholders)
 
-    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Handle the user step to pick discovered device."""
         if user_input is not None:
             address = user_input[CONF_ADDRESS]
