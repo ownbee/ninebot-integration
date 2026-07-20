@@ -61,8 +61,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         poll_method=_async_poll,
         connectable=True,
     )
+
+    async def _async_disconnect() -> None:
+        # Release the BLE connection on unload so the scooter is not left
+        # with a dangling link (only one client can connect at a time).
+        await data.disconnect()
+
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(coordinator.async_start())  # only start after all platforms have had a chance to subscribe
+    entry.async_on_unload(_async_disconnect)
     return True
 
 
